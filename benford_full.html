@@ -1,0 +1,183 @@
+<!doctype html>
+<html>
+<head>
+    <style>
+        .bar { fill: steelblue; }
+
+    body {
+      font: 10px sans-serif;
+    }
+
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke: #000;
+      shape-rendering: crispEdges;
+    }
+
+    .point {
+      fill: steelblue;
+      stroke: #000;
+    }
+
+    </style>
+
+    <script src="//d3js.org/d3.v3.min.js"></script>
+<body>
+<svg width="600" height="500"></svg>
+<script>
+
+var zeroes = 0; 
+var ones = 0;
+var twos = 0;
+var threes = 0;
+var fours = 0;
+var fives = 0;
+var sixes = 0;
+var sevens = 0;
+var eights = 0;
+var nines = 0;
+let numDays = 0;
+
+var margin = {top: 20, right: 20, bottom: 30, left: 40},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+var x = d3.scale.linear()
+    .range([0, width]);
+
+var y = d3.scale.linear()
+    .range([height, 0]);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+// d3.csv("_data/sunspots/sunspots_2014_3.csv", function(error,data) {
+d3.csv("_data/sunspots/sunspots_edit.csv", function(error,data) {
+
+// d3.csv("_data/sunspots/sunspots_2014_3.csv", function(error,data) {
+  if (error) throw error;
+
+  console.log(data[0]);
+
+  data.forEach(function(d) {
+    d.year = +d.Year;
+    d.month = +d.Month;
+    d.day = +d.Day;
+    d.ssn = +d.SSN;
+
+    if (d.day <= 9 ) {
+      d.day = "0" + d.day;
+    }
+
+    numDays++; // counting out the days in this dataset
+
+    let ssnDate = d.month + "/" + d.day + "/" + d.Year;
+    d.dday = +d.month + "." + d.day;
+    console.log("day: " + ssnDate + " | " + d.ssn + "  | " + numDays);
+
+    let firstDigit = getLeadingDigit(d.SSN);
+    if (firstDigit == 1) {
+      ones++;
+    } else if (firstDigit == 2) {
+      twos++;
+    } else if (firstDigit == 3) {
+      threes++;
+    } else if (firstDigit == 4) {
+      fours++;
+    } else if (firstDigit == 5) {
+      fives++;
+    } else if (firstDigit == 6) {
+      sixes++;
+    } else if (firstDigit == 7) {
+      sevens++;
+    } else if (firstDigit == 8) {
+      eights++;
+    } else if (firstDigit == 9) {
+      nines++;
+    } else {
+      zeroes++;
+    }
+
+    function getLeadingDigit(n) {
+      let digitArray = (n + "").split('');
+      let divisors = [];
+
+      for (i=0; i<digitArray.length; i++) {
+        let num = digitArray[i]*1;
+
+        if(n % num == 0) {
+          divisors.push(num);
+        }
+      }
+      // console.log("first: " + digitArray[0]);
+      // console.log("n: " + digitArray.length);
+      // return divisors.length;
+      return digitArray[0];
+    }
+
+  // Compute the scales’ domains.
+  x.domain(d3.extent(data, function(d) { return d.ssnDate; })).nice();
+  y.domain(d3.extent(data, function(d) { return d.ssn; })).nice();
+
+  // Add the x-axis.
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.svg.axis().scale(x).orient("bottom"));
+
+  // Add the y-axis.
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(d3.svg.axis().scale(y).orient("left"));
+
+  // Add the points!
+  svg.selectAll(".point")
+      .data(data)
+    .enter().append("circle")
+      .attr("class", "point")
+      .attr("r", 4.5)
+      .attr("cx", function(d) { return x(d.ssnDate); })
+      .attr("cy", function(d) { return y(d.ssn); });
+
+  });
+
+    /***********************
+    /* Benford's Law:
+    1 will be the leading digit in genuine set of numbers
+    1: 30.1%
+    2: 17.6%
+    3: 12.5%
+    4: 9.7%
+    5: 7.9%
+    6: 6.7%
+    7: 5.8%
+    8: 5.1%
+    9: 4.6%
+    ********************* */
+
+
+    console.log("total days: " + numDays);
+    console.log("1s: " + ones + " - " + (ones/numDays)*100);
+    console.log("2s: " + twos + " - " + (twos/numDays)*100);
+    console.log("3s: " + threes + " - " + (threes/numDays)*100);
+    console.log("4s: " + fours  + " - " + (fours/numDays)*100);
+    console.log("5s: " + fives + " - " + (fives/numDays)*100);
+    console.log("6s: " + sixes + " - " + (sixes/numDays)*100);
+    console.log("7s: " + sevens + " - " + (sevens/numDays)*100);
+    console.log("8s: " + eights + " - " + (eights/numDays)*100);
+    console.log("9s: " + nines + " - " + (nines/numDays)*100);
+
+});
+
+// setup the benford curve bar chart
+
+
+
+</script>
+
+</body>
+</html>

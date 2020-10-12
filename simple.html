@@ -1,0 +1,145 @@
+<!doctype html>
+<html>
+<head>
+    <style>
+        .bar { fill: steelblue; }
+
+    body {
+      font: 10px sans-serif;
+    }
+
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke: #000;
+      shape-rendering: crispEdges;
+    }
+
+    .point {
+      fill: steelblue;
+      stroke: #000;
+    }
+
+    .ticks {
+      font-size: 10px;
+    }
+
+    .track,
+    .track-inset,
+    .track-overlay {
+      stroke-linecap: round;
+    }
+
+    .track {
+      stroke: #000;
+      stroke-opacity: 0.3;
+      stroke-width: 10px;
+    }
+
+    .track-inset {
+      stroke: #dcdcdc;
+      stroke-width: 8px;
+    }
+
+    .track-overlay {
+      pointer-events: stroke;
+      stroke-width: 50px;
+      stroke: transparent;
+      cursor: crosshair;
+    }
+
+    .handle {
+      fill: #fff;
+      stroke: #000;
+      stroke-opacity: 0.5;
+      stroke-width: 1.25px;
+    }
+
+    </style>
+
+    <script src="//d3js.org/d3.v3.min.js"></script>
+<body>
+<svg width="600" height="500"></svg>
+<script>
+
+let numDays = 0;
+let ssnDate;
+
+var margin = {top: 20, right: 20, bottom: 30, left: 40},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+// var x = d3.scale.linear()
+//    .range([0, width]);
+
+var x = d3.scale.ordinal()
+    .rangeRoundBands([0,width], .05);
+
+var y = d3.scale.linear()
+    .range([height, 0]);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+d3.csv("_data/sunspots/list_aavso-arssn_daily_edit.csv", function(error,data) {
+  if (error) throw error;
+
+  console.log(data[0]);
+
+  var	dateFormat = d3.time.format("%Y-%m-%d");
+
+data.forEach(function(d) {
+    d.year = +d.Year;
+    if (d.Year == 1945 && d.Month == 12) {
+    d.month = +d.Month;
+    d.day = +d.Day;
+    d.ssn = +d.SSN;
+    d.numDays = numDays++;
+
+    d.ssnDate = dateFormat.parse(d.year + "-" + d.month + "-" + d.day);
+    d.dday = +d.month + "." + d.day;
+    console.log("day: " + d.ssnDate + "|" + d.ssn + " | " + numDays);
+
+    // console.log("ssn: " + d.day);
+  }
+});
+
+  // Compute the scales’ domains.
+  // x.domain(d3.extent(data, function(d) { return d.ssnDate; })).nice();
+
+  x.domain(data.map(function(d) {return d.ssnDate; }));
+  y.domain(d3.extent(data, function(d) { return d.ssn; })).nice();
+
+  // Add the x-axis.
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.svg.axis().scale(x).orient("bottom"))
+      .selectAll("text")
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", "-.55em")
+        .attr("transform", "rotate(-90)" );
+
+  // Add the y-axis.
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(d3.svg.axis().scale(y).orient("left"));
+
+  // Add the points!
+  svg.selectAll(".point")
+      .data(data)
+    .enter().append("circle")
+      .attr("class", "point")
+      .attr("r", 2)
+      .attr("cx", function(d) { return x(d.ssnDate); })
+      .attr("cy", function(d) { return y(d.ssn); });
+});
+
+</script>
+
+</body>
+</html>

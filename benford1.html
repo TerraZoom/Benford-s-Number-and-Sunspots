@@ -1,0 +1,94 @@
+<html>
+<head>
+  <title>Benford's Law Experiment</title>
+  <script src="_js/d3.js"></script>
+</head>
+
+<body>
+<h1>Benford's Law and Sunspots Experiment</h1>
+<script>
+
+  d3.csv('_data/sunspots/list_aavso-arssn_daily_edit.csv', function(data) {
+  // if (error) throw error;
+  console.log(data[0]);
+
+  data.forEach(function(d) {
+    d.year = +d.Year;
+    d.month = +d.Month;
+    d.day = +d.Day;
+    d.ssn = +d.SSN;
+    d.dday = +d.Month + "." + d.Day;
+
+    console.log("ssn: " + d.dday);
+  });
+
+
+  function getLeadingDigitCount(n) {
+    let digitArray = (n + "").split('');
+    let divisors = [];
+
+    for (i=0; i<digitArray.length; i++) {
+      let num = digitArray[i]*1;
+
+      if(n % num == 0) {
+        divisors.push(num);
+      }
+    }
+    console.log("first: " + digitArray[0]);
+    console.log("n: " + digitArray.length);
+    return divisors.length;
+  }
+
+  // need to create a function that takes data and rolls through it, returning firstDigit then adds to particular firstDigit
+  // let myNumber = 512345;
+  // let countOfNum = getLeadingDigitCount(myNumber);
+  // console.log("firstDigit: " + countOfNum);
+/*
+  // setting up our canvas
+  let margin = ({top: 20, right: 0, bottom: 50, left: 35});
+  let width = 900;
+  let  height = 600;
+
+  let y = d3.scaleLinear()
+    .domain([0, d3.max(data, d => d.SSN)]).nice()
+    .range([height - margin.bottom, margin.top]);
+
+  let x = d3.scaleBand()
+    .domain(data.map(d => d.name))
+    .range([margin.left, width - margin.right])
+    .padding(0.1);
+
+  let yAxis = g => g
+    .attr("transform", 'translate(${margin.left},0)')
+    .call(d3.axisLeft(y))
+    .call(g => g.select(".domain").remove());
+
+  let xAxis = g => g
+    .attr("transform", 'translate(0,${height - margin.bottom})')
+    .call(d3.axisBottom(x).tickSizeOuter(0));
+
+  const svg = d3.select(DOM.svg(width, height));
+
+  svg.append("g")
+      .attr("fill", "#FAE03C")
+    .selectAll("rect")
+    .data(data)
+    .join("rect")
+      .attr("x", d => x(d.day))
+      .attr("y", d => y(d.SSN))
+      .attr("height", d => y(0) - y(d.SSN))
+    .attr("width", x.bandwidth());
+  svg.append("g")
+      .call(xAxis);
+  svg.append("g")
+      .call(yAxis);
+
+  return svg.node();
+
+*/
+});
+</script>
+
+</body>
+
+</html>
